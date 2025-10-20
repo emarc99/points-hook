@@ -69,7 +69,7 @@ contract PointsHook is BaseHook, ERC1155 {
         //      amount of ETH they spent is equal to BalanceDelta.amount0()
 
         uint256 ethSpendAmount = uint256(int256(-delta.amount0()));
-        uint256 pointsForSwap = ethSpendAmount / 5;
+        uint256 pointsForSwap = ethSpendAmount / 5; // 20% of ETH received
 
         // Mint the points
         _assignPoints(key.toId(), hookData, pointsForSwap);
@@ -82,6 +82,9 @@ contract PointsHook is BaseHook, ERC1155 {
         bytes calldata hookData,
         uint256 points
     ) internal {
+        // If no points to allocated, return early
+        if (points == 0) return;
+
         // If no hookData is passed in, no points will be assigned to anyone
         if (hookData.length == 0) return;
 
@@ -92,7 +95,7 @@ contract PointsHook is BaseHook, ERC1155 {
         // nobody gets any points
         if (user == address(0)) return;
 
-        // Mint points to the user
+        // Finally, mint points to the user
         uint256 poolIdUint = uint256(PoolId.unwrap(poolId));
         _mint(user, poolIdUint, points, "");
     }
